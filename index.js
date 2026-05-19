@@ -28,6 +28,7 @@ async function run() {
     const db = client.db("ideavault")
     const ideasCollection = db.collection("ideas");
     const myIdeasCollection = db.collection("myIdeas");
+    const commentsCollection = db.collection("comments");
 
     app.get('/ideas', async(req, res) =>{
       const result = await ideasCollection.find().toArray();
@@ -71,6 +72,33 @@ async function run() {
     app.delete('/myIdeas/:id', async(req, res) =>{
       const id = req.params.id;
       const result = await myIdeasCollection.deleteOne({_id: new ObjectId(id)})
+      res.send(result);
+    })
+
+    app.get('/comments', async(req, res) =>{
+      const result = await commentsCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.post('/comments', async(req, res) =>{
+      const commentData = req.body;
+      const result = await commentsCollection.insertOne(commentData);
+      res.send(result);
+    })
+
+    app.patch('/comments/:id', async(req, res) =>{
+      const id = req.params.id;
+      const editComment = req.body;
+      const result = await commentsCollection.updateOne(
+        {_id: new ObjectId(id)},
+        {$set: editComment}
+      )
+      res.send(result);
+    })
+
+    app.delete('/comments/:id', async(req, res) =>{
+      const id = req.params.id;
+      const result = await commentsCollection.deleteOne({_id: new ObjectId(id)});
       res.send(result);
     })
 

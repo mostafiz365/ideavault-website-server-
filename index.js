@@ -80,6 +80,12 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/comments/:userId', async(req, res) =>{
+      const userId = req.params.userId;
+      const result = await commentsCollection.find({userId}).toArray();
+      res.send(result);
+    })
+
     app.post('/comments', async(req, res) =>{
       const commentData = req.body;
       const result = await commentsCollection.insertOne(commentData);

@@ -58,6 +58,16 @@ async function run() {
       res.send(result)
     })
 
+    app.patch('/myIdeas/:userId', async(req, res) =>{
+      const userId = req.params.userId;
+      const updateData = req.body;
+      const result = await myIdeasCollection.updateOne(
+        {userId},
+        {$set: updateData}
+      )
+      res.send(result);
+    })
+
     app.delete('/myIdeas/:id', async(req, res) =>{
       const id = req.params.id;
       const result = await myIdeasCollection.deleteOne({_id: new ObjectId(id)})

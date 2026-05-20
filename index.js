@@ -27,7 +27,6 @@ async function run() {
     await client.connect();
     const db = client.db("ideavault")
     const ideasCollection = db.collection("ideas");
-    const myIdeasCollection = db.collection("myIdeas");
     const commentsCollection = db.collection("comments");
 
     app.get('/ideas', async(req, res) =>{
@@ -38,7 +37,13 @@ async function run() {
     app.get('/ideas/:id', async(req, res) =>{
       const id = req.params.id;
       const result = await ideasCollection.findOne({_id: new ObjectId(id)});
-      res.send(result)
+      res.send(result);
+    })
+
+    app.get('/my-ideas/:userId', async(req, res) =>{
+    const userId = req.params.userId;
+    const result = await ideasCollection.find({ userId }).toArray();
+    res.send(result);
     })
 
     app.post('/ideas', async(req, res) =>{
@@ -47,32 +52,24 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/myIdeas/:userId', async(req, res) =>{
-      const userId = req.params.userId;
-      const result = await myIdeasCollection.find({userId}).toArray();
-      res.send(result);
-    })
+    app.patch('/ideas/:id', async(req, res) => {
+    const id = req.params.id;
+    const updatedData = req.body;
+    const result = await ideasCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+         $set: updatedData
+      }
+    );
+    res.send(result);
+})
 
-    app.post('/myIdeas', async(req, res) =>{
-      const myIdeasData = req.body;
-      const result = await myIdeasCollection.insertOne(myIdeasData);
-      res.send(result)
-    })
-
-    app.patch('/myIdeas/:userId', async(req, res) =>{
-      const userId = req.params.userId;
-      const updateData = req.body;
-      const result = await myIdeasCollection.updateOne(
-        {userId},
-        {$set: updateData}
-      )
-      res.send(result);
-    })
-
-    app.delete('/myIdeas/:id', async(req, res) =>{
-      const id = req.params.id;
-      const result = await myIdeasCollection.deleteOne({_id: new ObjectId(id)})
-      res.send(result);
+    app.delete('/ideas/:id', async(req, res) => {
+    const id = req.params.id;
+    const result = await ideasCollection.deleteOne({
+      _id: new ObjectId(id)
+    });
+    res.send(result);
     })
 
     app.get('/comments', async(req, res) =>{

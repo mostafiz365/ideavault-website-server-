@@ -52,10 +52,31 @@ async function run() {
     const ideasCollection = db.collection("ideas");
     const commentsCollection = db.collection("comments");
 
-    app.get('/ideas', async(req, res) =>{
-      const result = await ideasCollection.find().toArray();
-      res.send(result);
-    })
+    // app.get('/ideas', async(req, res) =>{
+    //   const result = await ideasCollection.find().toArray();
+    //   res.send(result);
+    // })
+
+    app.get('/ideas', async(req, res) => {
+  const search = req.query.search || "";
+  const category = req.query.category || "";
+
+  let query = {};
+
+  if(search){
+    query.ideaTitle = {
+      $regex: search,
+      $options: 'i'
+    }
+  }
+  if(category){
+    query.category = category;
+  }
+
+  const result = await ideasCollection.find(query).toArray();
+
+  res.send(result);
+})
 
     app.get('/trending', async(req, res) =>{
       const result = await ideasCollection.find().limit(6).toArray();

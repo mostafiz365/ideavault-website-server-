@@ -140,19 +140,52 @@ async function run() {
 
     app.patch('/comments/:id', async(req, res) =>{
       const id = req.params.id;
-      const editComment = req.body;
+      const {userId, commentText} = req.body;
+
+      const existingComment = await commentsCollection.findOne({
+        _id: new ObjectId(id)
+      });
+
+      if(existingComment.userId !== userId){
+        return res.status(403).send({ message: "Unauthorized Access"});
+      }
       const result = await commentsCollection.updateOne(
         {_id: new ObjectId(id)},
-        {$set: editComment}
+        {$set: {commentText}}
       )
       res.send(result);
     })
 
+    // app.patch('/comments/:id', async(req, res) =>{
+    //   const id = req.params.id;
+    //   const editComment = req.body;
+    //   const result = await commentsCollection.updateOne(
+    //     {_id: new ObjectId(id)},
+    //     {$set: editComment}
+    //   )
+    //   res.send(result);
+    // })
+
     app.delete('/comments/:id', async(req, res) =>{
       const id = req.params.id;
+      const { userId } = req.body;
+
+      const existingComment = await commentsCollection.findOne({
+        _id: new ObjectId(id)
+      });
+
+      if(existingComment.userId !== userId){
+        return res.status(403).send({ message: "Unauthorized Access"});
+      }
       const result = await commentsCollection.deleteOne({_id: new ObjectId(id)});
       res.send(result);
     })
+
+    // app.delete('/comments/:id', async(req, res) =>{
+    //   const id = req.params.id;
+    //   const result = await commentsCollection.deleteOne({_id: new ObjectId(id)});
+    //   res.send(result);
+    // })
 
 
 
